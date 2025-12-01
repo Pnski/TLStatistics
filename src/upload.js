@@ -18,9 +18,6 @@ const WORKER_BASE = "https://weathered-snowflake-0a72.s1l3nce.workers.dev";
     }
 })();
 
-let discordLoginWindow = null;
-let popupChecker = null;
-
 function updateLoginStatus(isLoggedIn) {
     const loginBtn = document.getElementById("discordLogin");
     if (loginBtn) {
@@ -55,31 +52,28 @@ function loginDiscord() {
     const url = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirect}&scope=identify`;
     
     // Open popup window
-    discordLoginWindow = window.open(
+    const popup = window.open(
         url,
         "Discord Login",
-        "width=600,height=700,location=yes"
+        "width=600,height=700,location=yes,resizable=no,scrollbars=yes,status=no"
     );
     
-    if (!discordLoginWindow) {
+    if (!popup) {
         showStatus("Popup blocked. Please allow popups.");
         return;
     }
     
-    // Focus the popup
-    discordLoginWindow.focus();
-    
-    // Check for token in popup every 500ms
-    popupChecker = setInterval(() => {
-        if (!discordLoginWindow || discordLoginWindow.closed) {
-            clearInterval(popupChecker);
+    // Check for token in popup
+    const checkPopup = setInterval(() => {
+        if (!popup || popup.closed) {
+            clearInterval(checkPopup);
             return;
         }
         
         try {
-            // Check if popup has redirected back to our page
-            if (discordLoginWindow.location.href.startsWith(window.location.origin + window.location.pathname)) {
-                const popupHash = discordLoginWindow.location.hash;
+            // Check if popup has our URL (Discord redirected back)
+            if (popup.location.href.startsWith(window.location.origin + window.location.pathname)) {
+                const popupHash = popup.location.hash;
                 
                 if (popupHash) {
                     const hash = popupHash.substring(1);
@@ -94,12 +88,10 @@ function loginDiscord() {
                         sessionStorage.setItem("discord_token", params.access_token);
                         
                         // Close the popup window
-                        discordLoginWindow.close();
-                        discordLoginWindow = null;
+                        popup.close();
                         
                         // Stop checking
-                        clearInterval(popupChecker);
-                        popupChecker = null;
+                        clearInterval(checkPopup);
                         
                         // Update UI
                         updateLoginStatus(true);
@@ -108,19 +100,16 @@ function loginDiscord() {
                 }
             }
         } catch (e) {
-            // Cross-origin error, popup hasn't redirected yet - normal
+            // Cross-origin error - popup is still on Discord's domain
+            // This is normal, just continue checking
         }
     }, 500);
     
-    // Auto-clear interval after 2 minutes
+    // Auto-stop checking after 2 minutes
     setTimeout(() => {
-        if (popupChecker) {
-            clearInterval(popupChecker);
-            popupChecker = null;
-        }
-        if (discordLoginWindow && !discordLoginWindow.closed) {
-            discordLoginWindow.close();
-            discordLoginWindow = null;
+        clearInterval(checkPopup);
+        if (popup && !popup.closed) {
+            popup.close();
         }
     }, 120000);
 }
@@ -129,16 +118,6 @@ function logoutDiscord() {
     sessionStorage.removeItem("discord_token");
     updateLoginStatus(false);
     showStatus("Logged out");
-    
-    // Clean up any open popup
-    if (discordLoginWindow && !discordLoginWindow.closed) {
-        discordLoginWindow.close();
-        discordLoginWindow = null;
-    }
-    if (popupChecker) {
-        clearInterval(popupChecker);
-        popupChecker = null;
-    }
 }
 
 // Upload functionality
