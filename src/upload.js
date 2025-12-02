@@ -120,6 +120,12 @@ function logoutDiscord() {
     showStatus("Logged out");
 }
 
+async function sha256(buffer) {
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
 // Upload functionality
 document.addEventListener("DOMContentLoaded", () => {
     const token = sessionStorage.getItem("discord_token");
@@ -150,8 +156,21 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = "Uploading...";
 
         try {
+            const arrayBuffer = await file.arrayBuffer();
+
+            const hash = await sha256(arrayBuffer);
+
+            const compressed = pako.gzip(new Uint8Array(arrayBuffer), {
+                level: 9
+            });
+            const gzFile = new File(
+                [compressed],
+                hash + ".gz",
+                { type: "application/gzip" }
+            );
+
             const form = new FormData();
-            form.append("file", file);
+            form.append("file", gzFile);
             form.append("message", message);
             if (discordToken) {
                 form.append("discord_token", discordToken);

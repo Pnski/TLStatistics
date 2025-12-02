@@ -32,6 +32,7 @@ import { Inputs } from "@observablehq/inputs"
 
 <div id="status" style="min-height: 60px; margin-top: 20px;"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <script src="upload.js"></script>
 
 <style>
