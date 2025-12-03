@@ -6,15 +6,21 @@ export default {
   // The pages and sections in the sidebar. If you don’t specify this option,
   // all pages will be listed in alphabetical order. Listing pages explicitly
   // lets you organize them into sections and have unlisted pages.
-  // pages: [
-  //   {
-  //     name: "Examples",
-  //     pages: [
-  //       {name: "Dashboard", path: "/example-dashboard"},
-  //       {name: "Report", path: "/example-report"}
-  //     ]
-  //   }
-  // ],
+  pages: [
+    {
+      name: "Summarys",
+      pages: [
+        {name: "Dashboard", path: "/example-dashboard"},
+        {name: "Report", path: "/example-report"}
+      ]
+    },{
+      name: "Uploads",
+      pages: [
+        {name: "Review File", path:"/uploads/viewfile"},
+        {name: "Upload File to Github", path: "/uploads/upload"}
+      ]
+    }
+  ],
 
   // Content to add to the head of the page, e.g. for a favicon:
   head: '<link rel="icon" href="TnlIcon.png" type="image/png" sizes="32x32">',
