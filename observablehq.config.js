@@ -7,8 +7,9 @@ export default {
     {
       name: "Summarys",
       pages: [
-        {name: "Dashboard", path: "/example-dashboard"},
-        {name: "Report", path: "/example-report"}
+        {name: "Dashboard", path: "/dashboard"},
+        {name: "Statistics", path: "/statistics"},
+        {name: "Report", path: "/report"}
       ]
     },{
       name: "Uploads",
