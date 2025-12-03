@@ -1,7 +1,7 @@
 # Review File
+
 ```js
 import * as Inputs from "npm:@observablehq/inputs";
-
 
 const logFile = view(Inputs.file({
   label: "Upload Combat Log",
@@ -35,7 +35,7 @@ let data = lines
             LogType,
             SkillName,
             SkillId: +SkillId,
-            Damage: +Damage,        // convert to number
+            Damage: +Damage,
             HitCritical: +HitCritical,
             HitDouble: +HitDouble,
             HitType,
@@ -49,6 +49,20 @@ data = data.sort((a, b) => a.Timestamp - b.Timestamp);
 data.forEach(d => {
   d.Time = d.Timestamp - data[0].Timestamp;  // relative time in ms
 });
+```
+
+```js
+function sparkbar(max) {
+  return (x) => htl.html`<div style="
+    background: var(--theme-foreground-fainter);
+    width: ${100 * x / max}%;
+    float: right;
+    padding-right: 3px;
+    box-sizing: border-box;
+    overflow: visible;
+    display: flex;
+    justify-content: end;">${x.toLocaleString("en-US")}`
+}
 ```
 
 
@@ -65,7 +79,6 @@ const tables = [];
 for (const [target, skillsMap] of grouped.entries()) {
     const targetData = [];
 
-    // Total damage for this target
     const totalDamage = d3.sum(data.filter(d => d.TargetName === target), d => d.Damage);
 
     const targetLines = data.filter(d => d.TargetName === target);
@@ -95,22 +108,27 @@ for (const [target, skillsMap] of grouped.entries()) {
     }
 
     targetData.sort((a, b) => b.Damage - a.Damage);
-    targetData.forEach((d, i) => d["#"] = i + 1);
+    //targetData.forEach((d, i) => d["#"] = i + 1);
     view(target);
     view(Inputs.table(targetData, {
-    columns: [
-        "#", "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "DPS"
-    ],
+        columns: [
+            "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "DPS"
+        ],
         header: {
-        species: "#",
-        SkillName: "Skill Name",
-        Damage: "Damage",
-        Ratio: "Ratio",
-        HitCount: "Hit Count",
-        CritChance: "Critical Hit Chance",
-        HeavyChance: "Heavy Attack Chance",
-        DPS: "DPS"
-    }
+            SkillName: "Skill Name",
+            Damage: "Damage",
+            Ratio: "Ratio",
+            HitCount: "Hit Count",
+            CritChance: "Critical Hit Chance",
+            HeavyChance: "Heavy Attack Chance",
+            DPS: "DPS"
+        },
+        format: {
+            Damage: sparkbar(d3.max(targetData, d => d.Damage))
+        },
+        sort: "Damage",
+        reverse: true,
+        layout: "auto"
     }))
 }
 ```
