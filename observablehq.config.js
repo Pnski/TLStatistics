@@ -3,9 +3,6 @@ export default {
   // The app’s title; used in the sidebar and webpage titles.
   title: "TlStatistics",
 
-  // The pages and sections in the sidebar. If you don’t specify this option,
-  // all pages will be listed in alphabetical order. Listing pages explicitly
-  // lets you organize them into sections and have unlisted pages.
   pages: [
     {
       name: "Summarys",
@@ -30,8 +27,8 @@ export default {
 
   // Some additional configuration options and their defaults:
   theme: "dark", // try "light", "dark", "slate", etc.
-  header: "TnL Dps Stats", // what to show in the header (HTML)
-  // footer: "Built with Observable.", // what to show in the footer (HTML)
+  // header: "TnL Dps Stats", // what to show in the header (HTML)
+  footer: `<a href="https://ko-fi.com/Q5Q4YAI3F" target="_blank"><img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" border="0" alt="Buy Me a Coffee at ko-fi.com" /></a><a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">cc-by-sa-4.0</a>`,
   // sidebar: true, // whether to show the sidebar
   // toc: true, // whether to show the table of contents
   // pager: true, // whether to show previous & next links in the footer
