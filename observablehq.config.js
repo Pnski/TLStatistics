@@ -13,7 +13,7 @@ export default {
       pages: [
         {name: "Dashboard", path: "/dashboard"},
         {name: "Statistics", path: "/statistics"},
-        {name: "PLayer Report", path: "/report"}
+        {name: "Player Report", path: "/report"}
       ]
     },{
       name: "Uploads",

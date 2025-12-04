@@ -1,5 +1,8 @@
 # Review File
 
+Throne and Liberty Damage meter files are stored in:
+> %LOCALAPPDATA%/TL/Saved/CombatLogs
+
 ```js
 import * as Inputs from "npm:@observablehq/inputs";
 
@@ -121,28 +124,107 @@ for (const [target, skillsMap] of grouped.entries()) {
 }
 ```
 
+### Skill Table
+
+```js
+const fullData = d3.group(data, d => d.SkillName);
+
+const tableData = Array.from(fullData, ([SkillName, skillArray]) => {
+  const totalDamage = d3.sum(skillArray, d => d.Damage);
+  const hitCount = skillArray.length;
+  const critCount = skillArray.filter(d => d.HitCritical === 1).length;
+  const heavyCount = skillArray.filter(d => d.HitDouble === 1).length;
+
+  const totalDamageAllSkills = d3.sum(data, d => d.Damage);
+
+  return {
+    SkillName,
+    Damage: totalDamage,
+    Ratio: Math.round((totalDamage / totalDamageAllSkills) * 100),
+    MaxDamage: d3.max(skillArray, d => d.Damage),
+    HitCount: hitCount,
+    CritChance: Math.round((critCount / hitCount) * 100),
+    HeavyChance: Math.round((heavyCount / hitCount) * 100),
+    DPS: Math.round(totalDamage / (d3.max(skillArray, d => d.Time) - d3.min(skillArray, d => d.Time)))
+  };
+});
+
+view(Inputs.table(tableData, {
+    columns: [
+        "SkillName", "Damage", "Ratio", "MaxDamage","HitCount", "CritChance", "HeavyChance", "DPS"
+    ],
+    header: {
+        SkillName: "Skill Name",
+        Damage: "Damage",
+        Ratio: "Ratio",
+        MaxDamage: "Max Damage",
+        HitCount: "Hit Count",
+        CritChance: "Critical Hit Chance",
+        HeavyChance: "Heavy Attack Chance",
+        DPS: "DPS"
+    },
+    format: {
+        Damage: sparkbar(d3.max(tableData, d => d.Damage)),
+        Ratio: x => x + "%",
+        CritChance: x => x + "%",
+        HeavyChance: x => x + "%",
+    },
+    sort: "Damage",
+    reverse: true,
+    layout: "auto",
+    rows: 30
+}));
+```
+
 ### Damage over Time
 
 ```js
-import * as Plot from "npm:@observablehq/plot";
+
+let sum = 0;
+const cumulative = data.map(d => ({
+  Time: d.Time,
+  CumulativeDamage: (sum += d.Damage)
+}));
+
 view(
     Plot.plot({
-        width: 800,
+        marks: [
+            Plot.dot(data, { x: "Time", y: "Damage", r:1}),
+
+            () =>
+            Plot.plot({
+                marginLeft: 70,
+                marginRight: 75,
+                marginBottom: 50,
+                width: width,
+                height: 400,
+
+                marks: [
+                Plot.line(cumulative, {
+                    x: "Time",
+                    y: "CumulativeDamage",
+                    stroke: "steelblue",
+                })],
+                x: {
+                    label: "Time in Minutes",
+                    tickFormat: d => d / 60,
+                    ticks: d3.range(0, d3.max(data, d => d.Time) + 30, 30)
+                },
+                y: { axis: "right", nice: true, line: true }
+            })
+        ],
+
+        marginLeft: 70,
+        marginRight: 75,
+        marginBottom: 50,
+        width: width,
+        height: 400,
         x: {
             label: "Time in Minutes",
             tickFormat: d => d / 60,
             ticks: d3.range(0, d3.max(data, d => d.Time) + 30, 30)
         },
-        marks: [
-            Plot.ruleY([1]),
-            Plot.line(data,
-                {
-                    x: "Time", 
-                    y: (d) => d.Damage,
-                    stroke: "var(--syntax-string)"
-                }
-            )
-        ]
+        y: { axis: "left" }
     })
 );
 ```
