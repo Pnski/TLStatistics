@@ -5,7 +5,7 @@ import * as Inputs from "npm:@observablehq/inputs";
 
 const logFile = view(Inputs.file({
   label: "Upload Combat Log",
-  accept: "TLCombatLog*.txt,",
+  accept: ".txt",
   required: true
 }));
 ```
@@ -42,13 +42,14 @@ let data = lines
             CasterName,
             TargetName
         };
-    });
+    }).filter(d => d.SkillId !== 940574531);
 
 data = data.sort((a, b) => a.Timestamp - b.Timestamp);
 
 data.forEach(d => {
   d.Time = (d.Timestamp - data[0].Timestamp) / 1000;
 });
+
 ```
 
 ## View
@@ -114,7 +115,8 @@ for (const [target, skillsMap] of grouped.entries()) {
         },
         sort: "Damage",
         reverse: true,
-        layout: "auto"
+        layout: "fixed" || "auto",
+        rows: 30
     }))
 }
 ```
