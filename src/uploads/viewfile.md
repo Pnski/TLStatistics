@@ -47,34 +47,18 @@ let data = lines
 data = data.sort((a, b) => a.Timestamp - b.Timestamp);
 
 data.forEach(d => {
-  d.Time = d.Timestamp - data[0].Timestamp;  // relative time in ms
+  d.Time = (d.Timestamp - data[0].Timestamp) / 1000;
 });
 ```
-
-```js
-function sparkbar(max) {
-  return (x) => htl.html`<div style="
-    background: var(--theme-foreground-fainter);
-    width: ${100 * x / max}%;
-    float: right;
-    padding-right: 3px;
-    box-sizing: border-box;
-    overflow: visible;
-    display: flex;
-    justify-content: end;">${x.toLocaleString("en-US")}`
-}
-```
-
 
 ## View
 
 ### Tables
 
 ```js
-// --- Aggregate per Target and per Skill ---
-const grouped = d3.group(data, d => d.TargetName, d => d.SkillName);
+import { sparkbar } from "/modules/sparkbar.js";
 
-const tables = [];
+const grouped = d3.group(data, d => d.TargetName, d => d.SkillName);
 
 for (const [target, skillsMap] of grouped.entries()) {
     const targetData = [];
@@ -82,9 +66,9 @@ for (const [target, skillsMap] of grouped.entries()) {
     const totalDamage = d3.sum(data.filter(d => d.TargetName === target), d => d.Damage);
 
     const targetLines = data.filter(d => d.TargetName === target);
-    const startTime = d3.min(targetLines, d => d.Timestamp);
-    const endTime = d3.max(targetLines, d => d.Timestamp);
-    const durationSec = (endTime - startTime) / 1000;
+    const startTime = d3.min(targetLines, d => d.Time);
+    const endTime = d3.max(targetLines, d => d.Time);
+    const durationSec = (endTime - startTime);
 
     for (const [skill, skillLines] of skillsMap.entries()) {
         const damage = d3.sum(skillLines, d => d.Damage);
@@ -92,14 +76,14 @@ for (const [target, skillsMap] of grouped.entries()) {
         const hitCount = skillLines.length;
         const critCount = skillLines.filter(d => d.HitCritical === 1).length;
         const heavyCount = skillLines.filter(d => d.HitDouble === 1).length;
-        const critChance = (critCount / hitCount * 100).toFixed(1) + "%";
-        const heavyChance = (heavyCount / hitCount * 100).toFixed(1) + "%";
+        const critChance = (critCount / hitCount * 100).toFixed(1);
+        const heavyChance = (heavyCount / hitCount * 100).toFixed(1);
         const dps = (damage / durationSec).toFixed(2);
 
         targetData.push({
         SkillName: skill,
         Damage: damage,
-        Ratio: ratio.toFixed(1) + "%",
+        Ratio: ratio.toFixed(1),
         HitCount: hitCount,
         CritChance: critChance,
         HeavyChance: heavyChance,
@@ -107,9 +91,8 @@ for (const [target, skillsMap] of grouped.entries()) {
         });
     }
 
-    targetData.sort((a, b) => b.Damage - a.Damage);
-    //targetData.forEach((d, i) => d["#"] = i + 1);
     view(target);
+
     view(Inputs.table(targetData, {
         columns: [
             "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "DPS"
@@ -124,7 +107,10 @@ for (const [target, skillsMap] of grouped.entries()) {
             DPS: "DPS"
         },
         format: {
-            Damage: sparkbar(d3.max(targetData, d => d.Damage))
+            Damage: sparkbar(d3.max(targetData, d => d.Damage)),
+            Ratio: (x) => x + "%",
+            CritChance: (x) => x + "%",
+            HeavyChance: (x) => x + "%",
         },
         sort: "Damage",
         reverse: true,
@@ -136,47 +122,27 @@ for (const [target, skillsMap] of grouped.entries()) {
 ### Damage over Time
 
 ```js
-const width = 800;
-const height = 300;
-const margin = {top: 20, right: 20, bottom: 30, left: 40};
-
-const svg = d3.create("svg")
-  .attr("width", width)
-  .attr("height", height);
-
-// === Scales ===
-const x = d3.scaleLinear()
-  .domain([0, d3.max(data, d => d.Time)])
-  .range([margin.left, width - margin.right]);
-
-const y = d3.scaleLinear()
-  .domain([d3.min(data, d => d.Damage), d3.max(data, d => d.Damage)])
-  .range([height - margin.bottom, margin.top])
-  .nice();
-
-// === Line generator ===
-const line = d3.line()
-  .x(d => x(d.Time))
-  .y(d => y(d.Damage));
-
-// === Draw line ===
-svg.append("path")
-  .datum(data)
-  .attr("fill", "none")
-  .attr("stroke", "steelblue")
-  .attr("stroke-width", 1.5)
-  .attr("d", line);
-
-// === Axes ===
-svg.append("g")
-  .attr("transform", `translate(0,${height - margin.bottom})`)
-  .call(d3.axisBottom(x));
-
-svg.append("g")
-  .attr("transform", `translate(${margin.left},0)`)
-  .call(d3.axisLeft(y));
-
-view(svg.node());
+import * as Plot from "npm:@observablehq/plot";
+view(
+    Plot.plot({
+        width: 800,
+        x: {
+            label: "Time in Minutes",
+            tickFormat: d => d / 60,
+            ticks: d3.range(0, d3.max(data, d => d.Time) + 30, 30)
+        },
+        marks: [
+            Plot.ruleY([1]),
+            Plot.line(data,
+                {
+                    x: "Time", 
+                    y: (d) => d.Damage,
+                    stroke: "var(--syntax-string)"
+                }
+            )
+        ]
+    })
+);
 ```
 
 ## Raw Log
