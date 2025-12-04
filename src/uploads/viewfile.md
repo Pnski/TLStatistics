@@ -45,7 +45,10 @@ let data = lines
             CasterName,
             TargetName
         };
-    }).filter(d => d.SkillId !== 940574531);
+    })
+    .filter(d => d.SkillId !== 940574531)
+    .filter(d => d.Damage !== 0)
+    ;
 
 data = data.sort((a, b) => a.Timestamp - b.Timestamp);
 
@@ -157,7 +160,7 @@ view(Inputs.table(tableData, {
         SkillName: "Skill Name",
         Damage: "Damage",
         Ratio: "Ratio",
-        MaxDamage: "Max Damage",
+        MaxDamage: "Max Hit",
         HitCount: "Hit Count",
         CritChance: "Critical Hit Chance",
         HeavyChance: "Heavy Attack Chance",
