@@ -139,7 +139,7 @@ for (const [target, skillsMap] of grouped.entries()) {
 ```js
 const fullData = d3.group(data, d => d.SkillName);
 
-const tableData = Array.from(fullData, ([SkillName, skillArray]) => {
+let tableData = Array.from(fullData, ([SkillName, skillArray]) => {
   const totalDamage = d3.sum(skillArray, d => d.Damage);
   const hitCount = skillArray.length;
   const critCount = skillArray.filter(d => d.HitCritical === 1).length;
@@ -158,6 +158,20 @@ const tableData = Array.from(fullData, ([SkillName, skillArray]) => {
     DPS: Math.round(totalDamage / (d3.max(skillArray, d => d.Time) - d3.min(skillArray, d => d.Time)))
   };
 });
+
+const ALL = {
+  SkillName: "ALL",
+  Damage: d3.sum(data, d => d.Damage),
+  Ratio: 100,
+  MaxDamage: d3.max(data, d => d.Damage),
+  HitCount: data.length,
+  CritChance: Math.round(d3.sum(data, d => d.HitCritical) / data.length * 100),
+  HeavyChance: Math.round(d3.sum(data, d => d.HitDouble) / data.length * 100),
+  DPS: Math.round(d3.sum(data, d => d.Damage) / (d3.max(data, d => d.Time) - d3.min(data, d => d.Time)))
+};
+
+// Put ALL row at the top
+tableData = [ALL, ...tableData];
 
 view(Inputs.table(tableData, {
     columns: [
