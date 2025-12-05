@@ -14,6 +14,10 @@ const logFile = view(Inputs.file({
 ```
 
 ```js
+const filters = view(Inputs.checkbox(["Zeros", "Raid Skill"], {label: "Filter"}));
+```
+
+```js
 const rawText = await logFile.text();
 const lines = rawText.split(/\r?\n/).slice(1); // remove first line
 
@@ -45,10 +49,13 @@ let data = lines
             CasterName,
             TargetName
         };
-    })
-    .filter(d => d.SkillId !== 940574531)
-    .filter(d => d.Damage !== 0)
-    ;
+    });
+if (filters.includes("Zeros")) {
+    data = data.filter(d => d.Damage !== 0);
+}
+if (filters.includes("Raid Skill")) {
+    data = data.filter(d => d.SkillId !== 940574531);
+}
 
 data = data.sort((a, b) => a.Timestamp - b.Timestamp);
 
