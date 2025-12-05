@@ -170,7 +170,6 @@ const ALL = {
   DPS: Math.round(d3.sum(data, d => d.Damage) / (d3.max(data, d => d.Time) - d3.min(data, d => d.Time)))
 };
 
-// Put ALL row at the top
 tableData = [ALL, ...tableData];
 
 view(Inputs.table(tableData, {
@@ -213,7 +212,7 @@ const cumulative = data.map(d => ({
 view(
     Plot.plot({
         marks: [
-            Plot.dot(data, { x: "Time", y: "Damage", r:1}),
+            Plot.dot(data, { x: "Time", y: "Damage", r:0.1}),
 
             () =>
             Plot.plot({
