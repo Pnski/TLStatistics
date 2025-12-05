@@ -12,7 +12,9 @@ All files uploaded as Anonymous are subject to deletion in the future, since the
 After you log in a token will be stored and your logs will be in a verified discorduser bound directory. You can request a deletion of all your logs.
 
 Throne and Liberty Damage meter files are stored in:
-> %LOCALAPPDATA%/TL/Saved/CombatLogs
+```
+%LOCALAPPDATA%/TL/Saved/CombatLogs
+```
 
 ---
 

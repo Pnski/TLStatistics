@@ -3,10 +3,6 @@ export default {
   // The app’s title; used in the sidebar and webpage titles.
   title: "TlStatistics",
 
-  dynamicPaths: [
-    "/modules/sparkbar.js"
-  ],
-
   pages: [
     {
       name: "Summarys",
@@ -21,7 +17,7 @@ export default {
         {name: "Review File", path:"/uploads/viewfile"},
         {name: "Upload File to Github", path: "/uploads/upload"}
       ]
-    }
+    },{name: "Patchnotes", path:"/patch"}
   ],
 
   // Content to add to the head of the page, e.g. for a favicon:
