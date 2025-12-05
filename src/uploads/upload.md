@@ -36,7 +36,7 @@ import { Inputs } from "@observablehq/inputs"
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 
 <script>
-const WORKER_BASE = "https://weathered-snowflake-0a72.s1l3nce.workers.dev";
+const WORKER_BASE = "https://weathered-snowflake-0a72.pnski.workers.dev";
 
 function updateLoginStatus(isLoggedIn) {
   const loginBtn = document.getElementById("discordLogin");

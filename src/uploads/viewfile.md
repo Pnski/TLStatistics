@@ -162,7 +162,8 @@ view(Inputs.table(tableData, {
     sort: "Damage",
     reverse: true,
     layout: "auto",
-    rows: 30
+    rows: 30,
+    select: false
 }));
 ```
 
@@ -278,7 +279,8 @@ for (const [target, skillsMap] of d3.group(data, d => d.TargetName, d => d.Skill
         sort: "Damage",
         reverse: true,
         layout: "fixed" || "auto",
-        rows: 30
+        rows: 30,
+        select: false
     }))
 }
 ```
