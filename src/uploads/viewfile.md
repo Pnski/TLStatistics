@@ -1,5 +1,6 @@
 ---
 theme: dashboard
+toc: false
 ---
 
 # Review File
@@ -105,7 +106,7 @@ data = data.slice(startIndex, endIndex);
     </a>
 </div>
 
-## Skill Table
+
 
 ```js
 const timeRange = d3.max(data, d => d.Time) - d3.min(data, d => d.Time);
@@ -139,7 +140,7 @@ const tableData = [
   })
 ];
 
-view(Inputs.table(tableData, {
+const viewTableData = Inputs.table(tableData, {
     columns: [
         "SkillName", "Damage", "Ratio", "MaxDamage","HitCount", "CritChance", "HeavyChance", "DPS"
     ],
@@ -164,10 +165,14 @@ view(Inputs.table(tableData, {
     layout: "auto",
     rows: 30,
     select: false
-}));
+});
+
 ```
 
-## Damage over Time
+<div class="card">
+    <h2>Skill Table</h2>
+    ${view(viewTableData)}
+</div>
 
 ```js
 const maxTime = d3.max(data, d => d.Time);
@@ -184,8 +189,7 @@ const _options = {
     height: width/2.5
 }
 
-view(
-    Plot.plot({
+const viewHeatMap = Plot.plot({
         marks: [
             Plot.dot(data, { x: "Time", y: "Damage", r:0.1}),
 
@@ -215,77 +219,80 @@ view(
             ticks: timeTicks
         },
         y: { axis: "left" }
-    })
-);
+    });
 ```
 
-## Detailed Tables per Monster
+<div class="card">
+    <h2>Heat Graph</h2>
+    ${view(viewHeatMap)}
+</div>
 
 ```js
 import { sparkbar } from "/modules/sparkbar.js";
+let monsterTables = {};
 
 for (const [target, skillsMap] of d3.group(data, d => d.TargetName, d => d.SkillName).entries()) {
-    const targetData = [];
+  const targetData = [];
 
-    const totalDamage = d3.sum(data.filter(d => d.TargetName === target), d => d.Damage);
+  const totalDamage = d3.sum(data.filter(d => d.TargetName === target), d => d.Damage);
+  const targetLines = data.filter(d => d.TargetName === target);
+  const startTime = d3.min(targetLines, d => d.Time);
+  const endTime = d3.max(targetLines, d => d.Time);
+  const durationSec = endTime - startTime;
 
-    const targetLines = data.filter(d => d.TargetName === target);
-    const startTime = d3.min(targetLines, d => d.Time);
-    const endTime = d3.max(targetLines, d => d.Time);
-    const durationSec = (endTime - startTime);
+  for (const [skill, skillLines] of skillsMap.entries()) {
+    const damage = d3.sum(skillLines, d => d.Damage);
 
-    for (const [skill, skillLines] of skillsMap.entries()) {
-        const damage = d3.sum(skillLines, d => d.Damage);
-        const ratio = damage / totalDamage * 100;
-        const hitCount = skillLines.length;
-        const critCount = skillLines.filter(d => d.HitCritical === 1).length;
-        const heavyCount = skillLines.filter(d => d.HitDouble === 1).length;
-        const critChance = (critCount / hitCount * 100).toFixed(1);
-        const heavyChance = (heavyCount / hitCount * 100).toFixed(1);
-        const dps = (damage / durationSec).toFixed(2);
+    targetData.push({
+      SkillName: skill,
+      Damage: damage,
+      Ratio: ((damage / totalDamage) * 100).toFixed(1),
+      HitCount: skillLines.length,
+      CritChance: ((skillLines.filter(d => d.HitCritical === 1).length / skillLines.length) * 100).toFixed(1),
+      HeavyChance: ((skillLines.filter(d => d.HitDouble === 1).length / skillLines.length) * 100).toFixed(1),
+      DPS: (damage / durationSec).toFixed(2)
+    });
+  }
 
-        targetData.push({
-        SkillName: skill,
-        Damage: damage,
-        Ratio: ratio.toFixed(1),
-        HitCount: hitCount,
-        CritChance: critChance,
-        HeavyChance: heavyChance,
-        DPS: dps
-        });
-    }
-
-    view(target);
-
-    view(Inputs.table(targetData, {
-        columns: [
-            "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "DPS"
-        ],
-        header: {
-            SkillName: "Skill Name",
-            Damage: "Damage",
-            Ratio: "Ratio",
-            HitCount: "Hit Count",
-            CritChance: "Critical Hit Chance",
-            HeavyChance: "Heavy Attack Chance",
-            DPS: "DPS"
-        },
-        format: {
-            Damage: sparkbar(d3.max(targetData, d => d.Damage)),
-            Ratio: (x) => x + "%",
-            CritChance: (x) => x + "%",
-            HeavyChance: (x) => x + "%",
-        },
-        sort: "Damage",
-        reverse: true,
-        layout: "fixed" || "auto",
-        rows: 30,
-        select: false
-    }))
+  monsterTables[target] = targetData;
 }
 ```
 
+<h2>Detailed Tables per Monster</h2>
+${
+    Object.entries(await monsterTables).map(([target, targetData]) => html`
+        <div class="card">
+            <h3>${target}</h3>
+            ${Inputs.table(targetData, {
+                columns: [
+                    "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "DPS"
+                ],
+                header: {
+                    SkillName: "Skill Name",
+                    Damage: "Damage",
+                    Ratio: "Ratio",
+                    HitCount: "Hit Count",
+                    CritChance: "Critical Hit Chance",
+                    HeavyChance: "Heavy Attack Chance",
+                    DPS: "DPS"
+                },
+                format: {
+                    Damage: sparkbar(d3.max(targetData, d => d.Damage)),
+                    Ratio: (x) => x + "%",
+                    CritChance: (x) => x + "%",
+                    HeavyChance: (x) => x + "%",
+                },
+                sort: "Damage",
+                reverse: true,
+                layout: "fixed",
+                rows: 30,
+                select: false})
+            }
+        </div>`)
+}
+
 ## Raw Log
+
 ```js
 const string = await logFile.text();
 view(string.split("\n").slice(1).join('\n'));
