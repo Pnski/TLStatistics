@@ -62,6 +62,7 @@ let data = lines
             HitCritical: +HitCritical,
             HitDouble: +HitDouble,
             HitType,
+            CritDouble: (+HitDouble && +HitCritical) ? 1 : 0,
             CasterName,
             TargetName
         };
@@ -121,6 +122,7 @@ const tableData = [
     HitCount: data.length,
     CritChance: Math.round(d3.mean(data, d => d.HitCritical) * 100),
     HeavyChance: Math.round(d3.mean(data, d => d.HitDouble) * 100),
+    CritDouble: Math.round(d3.mean(data, d => d.CritDouble) * 100),
     DPS: Math.round(totalDamageAll / timeRange)
   },
   ...Array.from(d3.group(data, d => d.SkillName), ([SkillName, skillArray]) => {
@@ -135,6 +137,7 @@ const tableData = [
       HitCount: hitCount,
       CritChance: Math.round(d3.mean(skillArray, d => d.HitCritical) * 100),
       HeavyChance: Math.round(d3.mean(skillArray, d => d.HitDouble) * 100),
+      CritDouble: Math.round(d3.mean(skillArray, d => d.CritDouble) * 100),
       DPS: Math.round(totalDamage / timeRange)
     };
   })
@@ -142,7 +145,7 @@ const tableData = [
 
 const viewTableData = Inputs.table(tableData, {
     columns: [
-        "SkillName", "Damage", "Ratio", "MaxDamage","HitCount", "CritChance", "HeavyChance", "DPS"
+        "SkillName", "Damage", "Ratio", "MaxDamage","HitCount", "CritChance", "HeavyChance", "CritDouble", "DPS"
     ],
     header: {
         SkillName: "Skill Name",
@@ -152,6 +155,7 @@ const viewTableData = Inputs.table(tableData, {
         HitCount: "Hit Count",
         CritChance: "Critical Hit Chance",
         HeavyChance: "Heavy Attack Chance",
+        CritDouble: "Critical + Heavy Attack Chance",
         DPS: "DPS"
     },
     format: {
@@ -159,6 +163,7 @@ const viewTableData = Inputs.table(tableData, {
         Ratio: x => x + "%",
         CritChance: x => x + "%",
         HeavyChance: x => x + "%",
+        CritDouble: x => x + "%",
     },
     sort: "Damage",
     reverse: true,
@@ -250,6 +255,7 @@ for (const [target, skillsMap] of d3.group(data, d => d.TargetName, d => d.Skill
       HitCount: skillLines.length,
       CritChance: ((skillLines.filter(d => d.HitCritical === 1).length / skillLines.length) * 100).toFixed(1),
       HeavyChance: ((skillLines.filter(d => d.HitDouble === 1).length / skillLines.length) * 100).toFixed(1),
+      CritDouble: ((skillLines.filter(d => d.CritDouble === 1).length / skillLines.length) * 100).toFixed(1),
       DPS: (damage / durationSec).toFixed(2)
     });
   }
@@ -265,7 +271,7 @@ ${
             <h3>${target}</h3>
             ${Inputs.table(targetData, {
                 columns: [
-                    "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "DPS"
+                    "SkillName", "Damage", "Ratio", "HitCount", "CritChance", "HeavyChance", "CritDouble", "DPS"
                 ],
                 header: {
                     SkillName: "Skill Name",
@@ -274,6 +280,7 @@ ${
                     HitCount: "Hit Count",
                     CritChance: "Critical Hit Chance",
                     HeavyChance: "Heavy Attack Chance",
+                    CritDouble: "Critical + Heavy Attack Chance",
                     DPS: "DPS"
                 },
                 format: {
@@ -281,6 +288,7 @@ ${
                     Ratio: (x) => x + "%",
                     CritChance: (x) => x + "%",
                     HeavyChance: (x) => x + "%",
+                    CritDouble: (x) => x + "%",
                 },
                 sort: "Damage",
                 reverse: true,
