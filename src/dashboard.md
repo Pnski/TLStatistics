@@ -2,7 +2,7 @@
 theme: dashboard
 toc: false
 sql:
-    stats: ./data/all_logs2.parquet
+    stats: ./data/allLogs.parquet
 ---
 
 # Dashboard
