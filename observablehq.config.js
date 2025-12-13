@@ -8,7 +8,8 @@ export default {
       name: "Summarys",
       pages: [
         {name: "Dashboard", path: "/dashboard"},
-        {name: "Statistics", path: "/statistics"},
+        {name: "Boss Statistics", path: "/statisticsBoss"},
+        {name: "Weapon Statistics", path: "/statisticsWeapon"},
         {name: "Player Report", path: "/report"}
       ]
     },{
@@ -25,6 +26,9 @@ export default {
 
   // The path to the source root.
   root: "src",
+  interpreters: {
+    ".py": ["python3", "./.venv/Scripts/python"],
+  },
 
   // Some additional configuration options and their defaults:
   theme: "dark", // try "light", "dark", "slate", etc.
