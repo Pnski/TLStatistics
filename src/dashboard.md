@@ -1,5 +1,4 @@
 ---
-theme: dashboard
 toc: false
 sql:
     stats: https://raw.githubusercontent.com/Pnski/TLStatistics/parquetUpload/allLogs.parquet

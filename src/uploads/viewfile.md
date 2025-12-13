@@ -1,5 +1,4 @@
 ---
-theme: dashboard
 toc: false
 ---
 
@@ -15,6 +14,7 @@ Throne and Liberty Damage meter files are stored in:
 ```js
 import { interval } from "/modules/interval.js";
 import { sparkbar } from "/modules/sparkbar.js";
+import { uidToColor } from "/modules/uidToColor.js";
 import { csvParse } from "d3-dsv";
 
 const logFile = view(Inputs.file({
@@ -61,6 +61,49 @@ const filterTime = view(interval([0, 100], {
         <span class="medium">${totalDamageAll.toLocaleString()}</span>
     </a>
 </div>
+<!--
+<div class="card">
+    <h2>Floor Q1 Median Q3 Ceiling Best</h2>
+    ${
+        Plot.plot({
+            x: {
+                label: "Damage",
+                labelAnchor: "right",
+                tickFormat: x => x.toFixed(0),
+                grid: true
+            },
+            y: {
+                grid: true,
+                label: null
+            },
+            marks: [
+                Plot.ruleX([0]),
+                Plot.tickX(masterTable,{
+                    x: "Damage",
+                    y: "SkillName",
+                    fill: "red"
+                }),
+                Plot.boxX(masterTable, {
+                    x: "Damage",
+                    y: "SkillName",
+                    fill: d => uidToColor(d.SkillId),
+                    //whisker: "minmax",
+                    //box: false,
+                    //outliers: false,
+                    stroke: d => uidToColor(d.SkillId),
+                    strokeWidth: 1.5,
+                    whiskerCap: true,
+                    r: 2
+                })
+            ],
+            marginLeft: 0.1 * width,
+            marginRight: 0.1 * width,
+            marginBottom: width / 25,
+            width,
+            height: width / 2.5
+        })
+    }
+</div>-->
 <div class="card">
     <h2>Skill Table</h2>
     ${view(viewTableData)}
@@ -69,6 +112,7 @@ const filterTime = view(interval([0, 100], {
     <h2>Heat Graph</h2>
     ${view(viewHeatMap)}
 </div>
+
 <h2>Detailed Tables per Monster</h2>
 ${
     Object.entries(monsterTables).map(([target, targetData]) => html`
@@ -380,7 +424,7 @@ const viewHeatMap = Plot.plot({
                 Plot.line(cumulative, {
                     x: "Time",
                     y: "CumulativeDamage",
-                    stroke: "var(--syntax-constant)",
+                    stroke: "var(--theme-foreground-focus)",
                 })
             ],
             x: {
