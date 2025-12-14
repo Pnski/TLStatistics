@@ -36,11 +36,12 @@ row_map = {}
 with gzip.open(f"{TABL_PATH}TLNpcRace.gz", "rb") as f:
     parser = ijson.kvitems(f, "item.Rows")
     for rowname, rowdata in parser:
-        icon = rowdata.get("NpcPortrait", {}).get("AssetPathName")
+        
         key = rowdata.get("NpcName",{}).get("Key")
-
-        if key is None:
+        if key in row_map or key is None:
             continue
+
+        icon = rowdata.get("NpcPortrait", {}).get("AssetPathName")
 
         # Build the row dict
         row = {

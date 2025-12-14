@@ -26,7 +26,7 @@ export default {
 
   // The path to the source root.
   root: "src",
-  /* interpreters: {
+ /*  interpreters: {
     ".py": ["./.venv/Scripts/python"],
   }, */
   /* dynamicPaths: [
