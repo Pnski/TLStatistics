@@ -10,14 +10,13 @@ This is currently not finished, it will load a realy huge dataset and makes some
 ```js
 import { uidToColor } from "./modules/uidToColor.js"
 
-let stream = await FileAttachment("./data/MonsterLookup.json.gz").stream()
-let decompressedStream = stream.pipeThrough(new DecompressionStream("gzip"));
+const stream = await FileAttachment("./data/MonsterLookup.json.gz").stream()
+const  decompressedStream = stream.pipeThrough(new DecompressionStream("gzip"));
 const MonsterLookup = await new Response(decompressedStream).json();
-stream = await FileAttachment("./data/WeaponLookup.json.gz").stream()
-decompressedStream = stream.pipeThrough(new DecompressionStream("gzip"));
-const WeaponLookup = await new Response(decompressedStream).json();
+const stream2 = await FileAttachment("./data/WeaponLookup.json.gz").stream()
+const decompressedStream2 = stream2.pipeThrough(new DecompressionStream("gzip"));
+const WeaponLookup = await new Response(decompressedStream2).json();
 
-//view(WeaponLookup)
 function imgFormat(iconPath) {
     const fileName = iconPath.split("/").pop().split(".").pop().replace("_Sprite","") + ".png";
     return `https://raw.githubusercontent.com/Pnski/TLStatistics/main/src/static/Image/Monster/${fileName}`;
@@ -80,119 +79,49 @@ BossListEN.forEach(async (k) => {
         
         const kQuoted = variants.map(b => `'${b}'`).join(', ');
 
-        /* const total = (await sql([`
-            SELECT SUM(Damage) AS TotalDamage
-            FROM stats
-            WHERE TargetName IN (${kQuoted})
-        `])).toArray()[0];  */
-
         bossData[k] = await sql([`
-        WITH fights AS (
-            SELECT
-                SHA,
-                DATE_DIFF(
-                    'seconds',
-                    MIN(Timestamp),
-                    MAX(Timestamp)
-                ) AS fightDuration
-            FROM stats
-            GROUP BY SHA
-        ),
-        damage_by_weapon AS (
-            SELECT
-                SHA,
-                CASE
-                    ${weaponCases}
-                    ELSE 'UNKNOWN'
-                END AS Weapon,
-                SUM(Damage) AS total_damage
-            FROM stats
-            GROUP BY SHA, Weapon
-        ),
-        weapon_combo AS (
-            SELECT
-                SHA,
-                STRING_AGG(DISTINCT Weapon, '/' ORDER BY Weapon) AS WeaponCombo,
-                SUM(total_damage) AS total_damage
-            FROM damage_by_weapon
-            WHERE Weapon != 'UNKNOWN'
-            GROUP BY SHA
-        )
-        SELECT
-            wc.SHA,
-            wc.WeaponCombo,
-            wc.total_damage / NULLIF(f.fightDuration, 0) AS DPS
-        FROM weapon_combo wc
-        JOIN fights f
-            ON wc.SHA = f.SHA
-        ORDER BY wc.SHA;
-        `]);
-
-        /* bossData[k] = await sql([`
-            WITH fights AS (
-            SELECT
-                SHA,
-                MIN(Timestamp) AS start_time,
-                MAX(Timestamp) AS end_time,
-                DATE_DIFF('seconds', MIN(Timestamp), MAX(Timestamp)) AS fightDuration
-            FROM stats
-            WHERE TargetName IN (${kQuoted})
-            GROUP BY SHA
-        ),
-        DmgPerID AS (
-            SELECT
-                SHA,
-                SkillId,
-                SUM(Damage) AS total_damage
-            FROM stats
-            WHERE TargetName IN (${kQuoted})
-            GROUP BY SHA, SkillId
-        )
-        SELECT
-            d.SHA,
-            d.SkillId,
-            d.total_damage / NULLIF(f.fightDuration, 0) AS DPS
-        FROM DmgPerID d
-        JOIN fights f
-            ON d.SHA = f.SHA
-        ORDER BY d.SHA, d.SkillId;
-        `]); */
-
-        /* const debug = await sql([`
             WITH fights AS (
                 SELECT
                     SHA,
-                    MIN(Timestamp) AS start_time,
-                    MAX(Timestamp) AS end_time,
-                    DATE_DIFF('second', MIN(Timestamp), MAX(Timestamp)) AS fight_seconds
+                    DATE_DIFF(
+                        'seconds',
+                        MIN(Timestamp),
+                        MAX(Timestamp)
+                    ) AS fightDuration
                 FROM stats
                 WHERE TargetName IN (${kQuoted})
                 GROUP BY SHA
             ),
-            damage_per_uid AS (
+            damage_by_weapon AS (
                 SELECT
                     SHA,
-                    SkillId,
+                    CASE
+                        ${weaponCases}
+                        ELSE 'UNKNOWN'
+                    END AS Weapon,
                     SUM(Damage) AS total_damage
                 FROM stats
                 WHERE TargetName IN (${kQuoted})
-                GROUP BY SHA, SkillId
+                GROUP BY SHA, Weapon
+            ),
+            weapon_combo AS (
+                SELECT
+                    SHA,
+                    STRING_AGG(DISTINCT Weapon, '/' ORDER BY Weapon) AS WeaponCombo,
+                    SUM(total_damage) AS total_damage
+                FROM damage_by_weapon
+                WHERE Weapon != 'UNKNOWN'
+                GROUP BY SHA
             )
             SELECT
-                d.SkillId,
-                d.total_damage,
-                f.fight_seconds,
-                d.total_damage / f.fight_seconds AS fight_dps
-            FROM damage_per_uid d
-            JOIN fights f ON d.SHA = f.SHA
-            WHERE d.SkillId = 950004896
-            ORDER BY fight_dps DESC
+                wc.SHA,
+                wc.WeaponCombo,
+                wc.total_damage / NULLIF(f.fightDuration, 0) AS DPS
+            FROM weapon_combo wc
+            JOIN fights f
+                ON wc.SHA = f.SHA
+            ORDER BY wc.SHA;
         `]);
-        view(Inputs.table(debug))*/
-        //view(Inputs.table(dpsResults))
-
-
-        //view((total.TotalDamage ? total.TotalDamage[0] : 0).toLocaleString());
     }
 })
 ```
@@ -228,7 +157,7 @@ for (const [name, data] of Object.entries(bossData)) {
             marginBottom: width / 25,
             width,
             height: width / 2.5
-        }))
-    
+        })
+    )
 }
 ```
