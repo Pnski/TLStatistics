@@ -16,8 +16,13 @@ const text = await new Response(decompressedStream).text();
 // Parse JSON
 const db = JSON.parse(text);
 
-function imgFormat(str) {
-    return str.replace("Game","_file/static").split(".")[0].replace("_Sprite","")+".png"
+/* function imgFormat(str) {
+    return str.split(".")[0].replace("/Game","https://raw.githubusercontent.com/Pnski/TLStatistics/main/static").replace("_Sprite","")+".png"
+} */
+
+function imgFormat(iconPath) {
+    const fileName = iconPath.split("/").pop().split(".").pop().replace("_Sprite","") + ".png";
+    return `https://raw.githubusercontent.com/Pnski/TLStatistics/main/src/static/Image/Monster/${fileName}`;
 }
 ```
 
