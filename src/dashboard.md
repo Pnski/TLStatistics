@@ -6,6 +6,17 @@ sql:
 
 # Dashboard
 
+```js
+const [{ numSHA, latestTimestamp }] = await sql`
+  SELECT 
+    COUNT(DISTINCT SHA) AS numSHA,
+    MAX(Timestamp) AS latestTimestamp
+  FROM stats;
+`;
+const date = new Date(latestTimestamp); // latestTimestamp in ms
+const formatted = date.toLocaleString(); // e.g., "12/15/2025, 16:42:18"
+```
+
 ```sql id=[Dragaryle,Radeth,CalanthiaNM,CalanthiaHM]
 SELECT
     CASE
@@ -17,6 +28,18 @@ FROM stats
 WHERE Target IN ('Dragaryle', 'Radeth', 'Calanthia', 'CalanthiaHM')
 GROUP BY Target;
 ```
+
+<div class="grid grid-cols-4">
+    <div class="card">
+        <h2>Total Logs in Database</h2>
+        ${numSHA}
+    </div>
+    <div class="card">
+        <h2>Latest Date in Database</h2>
+        ${formatted}
+    </div>
+</div>
+
 
 <div class="grid grid-cols-4">
     <a class="card">
@@ -48,6 +71,7 @@ GROUP BY Target;
         <img style="float:right" height="124" src="./static/Image/Raid/Raid_M_AntiKingArmy_ChaosCalanthia_Open_Normal.png" />
     </a>
 </div>
+
 
 <style>
 .text-wrapper {
