@@ -34,31 +34,11 @@ function imgFormat(iconPath) {
 
 ```js
 const BossListEN = [
-    'Daigon',
-    'Leviathan',
-    'Pakilo Naru',
-    'Manticus Brothers',
-    'Ascended Minezerok',
-    'Ascended Grand Aelon',
-    'Ascended Cornelius',
-    'Ascended Kowazan',
-    'Ascended Morokai',
-    'Ascended Chernobog',
-    'Ascended Ahzreil',
-    'Ascended Adentus',
-    'Ascended Elder Aridus',
-    'Ascended Excavator-9',
-    'Ascended Junobote',
-    'Ascended Malakar',
-    'Ascended Talus',
-    "Queen Bellandir",
-    "Ascended Queen Bellandir",
-    "Tevent",
-    "Ascended Tevent",
-    "Giant Cordy",
-    "Ascended Giant Cordy",
-    "Deluzhnoa",
-    "Ascended Deluzhnoa"
+    "Limuny Bercant",
+    "King Khanzaizin",
+    "Grayeye",
+    "Norn Bercant",
+    "Kaiser Crimson"
 ]
 ```
 

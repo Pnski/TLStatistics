@@ -7,7 +7,9 @@ export default {
       name: "Summarys",
       pages: [
         {name: "Dashboard", path: "/dashboard"},
+        {name: "Raid Statistics", path: "/statisticsRaid"},
         {name: "Boss Statistics", path: "/statisticsBoss"},
+        {name: "Dungeon Statistics", path: "/statisticsDungeons"},
         {name: "Weapon Statistics", path: "/statisticsWeapon"},
         {name: "Player Report", path: "/report"}
       ]
