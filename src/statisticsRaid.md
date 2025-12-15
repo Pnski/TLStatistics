@@ -106,7 +106,7 @@ const BossListEN = [
     'Vulkan',
     'Radeth',
     'Calanthia',
-    "Calanthia's Nightmare"
+    "Calanthia of Destruction"
 ]
 ```
 
@@ -132,7 +132,7 @@ await Promise.all(
                 bossObject.ko,
                 bossObject.pt,
                 bossObject['zh-Hant']
-            ].filter(name => name && name.trim() !== "");
+            ]
             
             const kQuoted = variants.map(b => `'${b}'`).join(', ');
 
