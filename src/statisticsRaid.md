@@ -3,7 +3,7 @@ sql:
     stats: https://raw.githubusercontent.com/Pnski/TLStatistics/parquetUpload/allLogs.parquet
 ---
 
-# Boss Statistics
+# Raid Statistics
 
 This is currently not finished, it will load a realy huge dataset and makes some rly huge stuff, tests currently take between 20s and 1min depending on browsercache!
 
